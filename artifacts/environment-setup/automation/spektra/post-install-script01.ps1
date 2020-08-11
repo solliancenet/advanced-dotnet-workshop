@@ -310,6 +310,11 @@ Connect-AzAccount -Credential $cred | Out-Null
 #install sql server cmdlets
 Install-Module -Name SqlServer
 
+#WSL
+dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
+Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux
+#wsl --set-default-version 2
+
 git clone https://github.com/solliancenet/advanced-dotnet-workshop
 
 sleep 20
