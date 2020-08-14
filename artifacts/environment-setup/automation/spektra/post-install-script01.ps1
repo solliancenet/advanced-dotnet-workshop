@@ -312,7 +312,7 @@ Install-Module -Name SqlServer
 
 #WSL
 dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
-Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux
+Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux -NoRestart
 #wsl --set-default-version 2
 
 git clone https://github.com/solliancenet/advanced-dotnet-workshop
