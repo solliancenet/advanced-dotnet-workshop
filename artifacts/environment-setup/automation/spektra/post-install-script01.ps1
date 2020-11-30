@@ -26,10 +26,12 @@ function CreateRebootTask($name, $scriptPath)
     $taskname = $name;
     
     $params = @{
-        Action  = $action
-        Trigger = $trigger
-        TaskName = $taskname
-    }
+      Action  = $action
+      Trigger = $trigger
+      TaskName = $taskname
+      User = $localusername
+      Password = $password
+  }
     
     if(Get-ScheduledTask -TaskName $params.TaskName -EA SilentlyContinue) { 
         Set-ScheduledTask @params
@@ -81,21 +83,21 @@ function InstallFiddler()
 {
   InstallChocolaty;
 
-  choco install fiddler
+  choco install fiddler --ignoredetectedreboot
 }
 
 function InstallPostman()
 {
   InstallChocolaty;
 
-  choco install postman
+  choco install postman --ignoredetectedreboot
 }
 
 function InstallSmtp4Dev()
 {
   InstallChocolaty;
 
-  choco install smtp4dev
+  choco install smtp4dev --ignoredetectedreboot
 }
 
 function InstallDocker()
@@ -293,7 +295,7 @@ function InstallDockerDesktop()
     start-process "$productPath\$productExec" -ArgumentList $argList -wait
     #>
 
-    choco install docker-desktop --pre
+    choco install docker-desktop --pre --ignoredetectedreboot
 
     Add-LocalGroupMember -Group "docker-users" -Member $localusername;
 
@@ -343,18 +345,26 @@ function InstallVisualStudio()
         #choco install visualstudio2019community -y
 
         # Install Visual Studio 2019 Enterprise version
-        choco install visualstudio2019enterprise -y
+        choco install visualstudio2019enterprise -y --ignoredetectedreboot
 }
 
 function InstallWSL()
 {
-    write-host "Installing WSL";
+  write-host "Installing WSL";
 
-    dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
-    
-    dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
+  $script = "dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart"
 
-    $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine")
+  #& $script
+
+  powershell.exe -c "`$user='$localusername'; `$pass='$password'; try { Invoke-Command -ScriptBlock { & $script } -ComputerName localhost -Credential (New-Object System.Management.Automation.PSCredential `$user,(ConvertTo-SecureString `$pass -AsPlainText -Force)) } catch { echo `$_.Exception.Message }" 
+  
+  $script = "dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart"
+
+  #& $script
+
+  powershell.exe -c "`$user='$localusername'; `$pass='$password'; try { Invoke-Command -ScriptBlock { & $script } -ComputerName localhost -Credential (New-Object System.Management.Automation.PSCredential `$user,(ConvertTo-SecureString `$pass -AsPlainText -Force)) } catch { echo `$_.Exception.Message }" 
+
+  $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine")
 }
 
 function UpdateVisualStudio($edition)
@@ -461,6 +471,8 @@ Start-Transcript -Path C:\WindowsAzure\Logs\CloudLabsCustomScriptExtension.txt -
 [Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls
 [Net.ServicePointManager]::SecurityProtocol = "tls12, tls11, tls" 
 
+CreateLabFilesDirectory
+
 DisableInternetExplorerESC
 
 EnableIEFileDownload
@@ -512,8 +524,6 @@ InstallVisualStudio "enterprise"
 
 UpdateVisualStudio "enterprise"
 
-CreateLabFilesDirectory
-
 cd "c:\labfiles";
 
 CreateCredFile $azureUsername $azurePassword $azureTenantID $azureSubscriptionID $deploymentId $odlId
@@ -537,12 +547,7 @@ $cred = new-object -typename System.Management.Automation.PSCredential -argument
 Connect-AzAccount -Credential $cred | Out-Null
          
 #install sql server cmdlets
-Install-Module -Name SqlServer
-
-#WSL
-dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
-Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux -NoRestart
-#wsl --set-default-version 2
+powershell.exe -c "`$user='$username'; `$pass='$password'; try { Invoke-Command -ScriptBlock { Install-Module -Name SqlServer -force } -ComputerName localhost -Credential (New-Object System.Management.Automation.PSCredential `$user,(ConvertTo-SecureString `$pass -AsPlainText -Force)) } catch { echo `$_.Exception.Message }" 
 
 git clone https://github.com/solliancenet/advanced-dotnet-workshop
 
