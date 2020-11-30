@@ -19,6 +19,26 @@ Param (
   $deploymentId
 )
 
+function CreateRebootTask($name, $scriptPath)
+{
+    $action = New-ScheduledTaskAction -Execute 'Powershell.exe' -Argument "-NoProfile -WindowStyle Hidden -file $scriptPath"
+    $trigger = New-ScheduledTaskTrigger -AtStartup
+    $taskname = $name;
+    
+    $params = @{
+        Action  = $action
+        Trigger = $trigger
+        TaskName = $taskname
+    }
+    
+    if(Get-ScheduledTask -TaskName $params.TaskName -EA SilentlyContinue) { 
+        Set-ScheduledTask @params
+        }
+    else {
+        Register-ScheduledTask @params
+    }
+}
+
 function InstallPorter()
 {
   iwr "https://cdn.porter.sh/latest/install-windows.ps1" -UseBasicParsing | iex
@@ -503,6 +523,11 @@ CreateCredFile $azureUsername $azurePassword $azureTenantID $azureSubscriptionID
 $userName = $AzureUserName                # READ FROM FILE
 $password = $AzurePassword                # READ FROM FILE
 $clientId = $TokenGeneratorClientId       # READ FROM FILE
+
+reg add HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced /v HideFileExt /t REG_DWORD /d 0 /f
+
+$scriptPath = "C:\LabFiles\advanced-dotnet-workshop\artifacts\environment-setup\automation\WSLSetup.ps1"
+CreateRebootTask "Setup WSL" $scriptPath
 
 Uninstall-AzureRm
 
