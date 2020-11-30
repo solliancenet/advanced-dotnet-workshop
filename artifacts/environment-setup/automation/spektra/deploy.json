@@ -149,9 +149,9 @@
           },
           "storageProfile": {
             "imageReference": {
-              "publisher": "microsoftvisualstudio",
-              "offer": "visualstudio2019latest",
-              "sku": "vs-2019-ent-latest-ws2019",
+              "publisher": "MicrosoftWindowsDesktop",
+              "offer": "Windows-10",
+              "sku": "20h1-pro-g2",
               "version": "latest"
             },
             "osDisk": {

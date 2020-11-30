@@ -29,8 +29,8 @@ function CreateRebootTask($name, $scriptPath)
       Action  = $action
       Trigger = $trigger
       TaskName = $taskname
-      User = $localusername
-      Password = $password
+      User = $global:localusername
+      Password = $global:password
   }
     
     if(Get-ScheduledTask -TaskName $params.TaskName -EA SilentlyContinue) { 
@@ -39,6 +39,26 @@ function CreateRebootTask($name, $scriptPath)
     else {
         Register-ScheduledTask @params
     }
+}
+
+function InstallPutty()
+{
+    write-host "Installing Putty";
+
+    #check for executables...
+	$item = get-item "C:\Program Files\Putty\putty.exe" -ea silentlycontinue;
+	
+	if (!$item)
+	{
+		$downloadNotePad = "https://the.earth.li/~sgtatham/putty/latest/w64/putty-64bit-0.74-installer.msi";
+
+        mkdir c:\temp -ea silentlycontinue 
+		
+		#download it...		
+		Start-BitsTransfer -Source $DownloadNotePad -DisplayName Notepad -Destination "c:\temp\putty.msi"
+        
+        msiexec.exe /I c:\temp\Putty.msi /quiet
+	}
 }
 
 function InstallPorter()
@@ -495,11 +515,11 @@ InstallFiddler;
 
 InstallPostman;
 
-InstallPutty
+InstallPutty;
 
-InstallGit
+InstallGit;
 
-InstallAzureCli
+InstallAzureCli;
 
 InstallPorter;
 
