@@ -63,11 +63,15 @@ function InstallPutty()
 
 function InstallPorter()
 {
+  write-host "Installing Porter";
+
   iwr "https://cdn.porter.sh/latest/install-windows.ps1" -UseBasicParsing | iex
 }
 
 function InstallGit()
 {
+  write-host "Installing Git";
+
   #download and install git...		
   $output = "$env:TEMP\git.exe";
   Invoke-WebRequest -Uri https://github.com/git-for-windows/git/releases/download/v2.27.0.windows.1/Git-2.27.0-64-bit.exe -OutFile $output; 
@@ -81,6 +85,8 @@ function InstallGit()
 
 function InstallAzureCli()
 {
+  write-host "Installing Azure CLI";
+
   #install azure cli
   Invoke-WebRequest -Uri https://aka.ms/installazurecliwindows -OutFile .\AzureCLI.msi; 
   Start-Process msiexec.exe -Wait -ArgumentList '/I AzureCLI.msi /quiet'; 
@@ -89,6 +95,8 @@ function InstallAzureCli()
 
 function InstallChocolaty()
 {
+  write-host "Installing Chocolaty";
+
   $env:chocolateyUseWindowsCompression = 'true'
   Set-ExecutionPolicy Bypass -Scope Process -Force; 
   [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; 
@@ -101,6 +109,8 @@ function InstallChocolaty()
 
 function InstallFiddler()
 {
+  write-host "Installing Fiddler";
+
   InstallChocolaty;
 
   choco install fiddler --ignoredetectedreboot
@@ -108,6 +118,8 @@ function InstallFiddler()
 
 function InstallPostman()
 {
+  write-host "Installing Postman";
+
   InstallChocolaty;
 
   choco install postman --ignoredetectedreboot
@@ -115,6 +127,8 @@ function InstallPostman()
 
 function InstallSmtp4Dev()
 {
+  write-host "Installing Smtp4Dev";
+
   InstallChocolaty;
 
   choco install smtp4dev --ignoredetectedreboot
@@ -122,12 +136,16 @@ function InstallSmtp4Dev()
 
 function InstallDocker()
 {
-    Install-Module -Name DockerMsftProvider -Repository PSGallery -Force;
-    Install-Package -Name docker -ProviderName DockerMsftProvider;
+  write-host "Installing Docker";
+
+  Install-Module -Name DockerMsftProvider -Repository PSGallery -Force;
+  Install-Package -Name docker -ProviderName DockerMsftProvider;
 }
 
 function InstallDotNet5()
 {
+  write-host "Installing DotNet5";
+
   $url = "https://download.visualstudio.microsoft.com/download/pr/21511476-7a5b-4bfe-b96e-3d9ebc1f01ab/f2cf00c22fcd52e96dfee7d18e47c343/dotnet-sdk-5.0.100-preview.7.20366.6-win-x64.exe";
   $output = "$env:TEMP\dotnet.exe";
   Invoke-WebRequest -Uri $url -OutFile $output; 
@@ -140,6 +158,8 @@ function InstallDotNet5()
 
 function InstallDotNetCore($version)
 {
+  write-host "Installing Dot Core $version";
+
     try
     {
         Invoke-WebRequest 'https://dot.net/v1/dotnet-install.ps1' -OutFile 'dotnet-install.ps1';
@@ -153,6 +173,10 @@ function InstallDotNetCore($version)
 
 function InstallVisualStudioCode($AdditionalExtensions)
 {
+  write-host "Installing Visual Studio Code";
+
+  choco install vscode --ignoredetectedreboot
+
   $Architecture = "64-bit";
   $BuildEdition = "Stable";
 
@@ -199,9 +223,9 @@ switch ($BuildEdition) {
   if (!(Test-Path $codeCmdPath)) 
   {
     Remove-Item -Force "$env:TEMP\vscode-$($BuildEdition).exe" -ErrorAction SilentlyContinue
-    Invoke-WebRequest -Uri "https://vscode-update.azurewebsites.net/latest/$($bitVersion)/$($BuildEdition)" -OutFile "$env:TEMP\vscode-$($BuildEdition).exe"
+    Invoke-WebRequest -Uri "https://vscode-update.azurewebsites.net/latest/$($bitVersion)/$($BuildEdition)" -OutFile "C:\temp\vscode-$($BuildEdition).exe"
 
-    Start-Process -Wait "$env:TEMP\vscode-$($BuildEdition).exe" -ArgumentList /silent, /mergetasks=!runcode
+    Start-Process -Wait "C:\temp\vscode-$($BuildEdition).exe" -ArgumentList /silent, /mergetasks=!runcode
   }
   else {
       Write-Host "`n$appName is already installed." -ForegroundColor Yellow
@@ -261,23 +285,6 @@ function InstallUbuntu()
     Invoke-WebRequest -Uri https://aka.ms/wsl-ubuntu-2004 -OutFile "$path/Ubuntu2004.appx" -UseBasicParsing
 
     powershell.exe -c "`$user='$localusername'; `$pass='$password'; try { Invoke-Command -ScriptBlock { Add-AppxPackage `"$path\Ubuntu2004.appx`" } -ComputerName localhost -Credential (New-Object System.Management.Automation.PSCredential `$user,(ConvertTo-SecureString `$pass -AsPlainText -Force)) } catch { echo `$_.Exception.Message }" 
-
-    Add-AppxProvisionedPackage -Online -PackagePath C:\temp\Ubuntu1604.appx -skiplicense
-
-    cd 'C:\Program Files\WindowsApps\'
-    $installCommand = (Get-ChildItem -Path ".\" -Recurse ubuntu1604.exe)[0].Directory.FullName
-    $installCommand += "\Ubuntu1604.exe"
-    & $installCommand;
-
-    Add-AppxProvisionedPackage -Online -PackagePath C:\temp\Ubuntu1804.appx -skiplicense
-
-    $installCommand = (Get-ChildItem -Path ".\" -Recurse ubuntu1804.exe)[0].Directory.FullName + "\Ubuntu1804.exe"
-    & $installCommand;
-
-    Add-AppxProvisionedPackage -Online -PackagePath C:\temp\Ubuntu2004.appx -skiplicense
-
-    $installCommand = (Get-ChildItem -Path ".\" -Recurse ubuntu2004.exe)[0].Directory.FullName + "\Ubuntu2004.exe"
-    & $installCommand;
 }
 
 function InstallChrome()
@@ -341,7 +348,7 @@ function InstallWSL2
     #download it...		
     Start-BitsTransfer -Source $DownloadNotePad -DisplayName Notepad -Destination "wsl_update_x64.msi"
 
-    $credentials = New-Object System.Management.Automation.PSCredential -ArgumentList @($localusername,(ConvertTo-SecureString -String $password -AsPlainText -Force))
+    #$credentials = New-Object System.Management.Automation.PSCredential -ArgumentList @($global:localusername,(ConvertTo-SecureString -String $global:password -AsPlainText -Force))
 
     #Start-Process msiexec.exe -Wait -ArgumentList '/I C:\temp\wsl_update_x64.msi /quiet' -Credential $credentials
     Start-Process msiexec.exe -Wait -ArgumentList '/I C:\temp\wsl_update_x64.msi /quiet'
@@ -495,6 +502,17 @@ Set-Executionpolicy unrestricted -force
 
 CreateLabFilesDirectory
 
+cd "c:\labfiles";
+
+CreateCredFile $azureUsername $azurePassword $azureTenantID $azureSubscriptionID $deploymentId $odlId
+
+. C:\LabFiles\AzureCreds.ps1
+
+$userName = $AzureUserName                # READ FROM FILE
+$global:password = $AzurePassword                # READ FROM FILE
+$clientId = $TokenGeneratorClientId       # READ FROM FILE
+$global:localusername = "wsuser"
+
 DisableInternetExplorerESC
 
 EnableIEFileDownload
@@ -516,8 +534,6 @@ InstallFiddler;
 InstallPostman;
 
 InstallPutty;
-
-InstallGit;
 
 InstallAzureCli;
 
@@ -545,16 +561,6 @@ InstallVisualStudioCode $ext
 InstallVisualStudio "enterprise"
 
 UpdateVisualStudio "enterprise"
-
-cd "c:\labfiles";
-
-CreateCredFile $azureUsername $azurePassword $azureTenantID $azureSubscriptionID $deploymentId $odlId
-
-. C:\LabFiles\AzureCreds.ps1
-
-$userName = $AzureUserName                # READ FROM FILE
-$password = $AzurePassword                # READ FROM FILE
-$clientId = $TokenGeneratorClientId       # READ FROM FILE
 
 reg add HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced /v HideFileExt /t REG_DWORD /d 0 /f
 
