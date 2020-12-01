@@ -517,15 +517,13 @@ DisableInternetExplorerESC
 
 EnableIEFileDownload
 
+InstallNotepadPP;
+
 InstallDotNetCore "3.1"
 
 InstallDotNet5;
 
 InstallGit;
-
-DisableInternetExplorerESC
-
-EnableIEFileDownload
 
 InstallChocolaty;
 
@@ -540,8 +538,6 @@ InstallAzureCli;
 InstallPorter;
 
 InstallChrome
-
-InstallNotepadPP
 
 InstallAzPowerShellModule
 
@@ -564,6 +560,8 @@ UpdateVisualStudio "enterprise"
 
 reg add HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced /v HideFileExt /t REG_DWORD /d 0 /f
 
+wevtutil set-log Microsoft-Windows-TaskScheduler/Operational /enabled:true
+
 $scriptPath = "C:\LabFiles\advanced-dotnet-workshop\artifacts\environment-setup\automation\WSLSetup.ps1"
 CreateRebootTask "Setup WSL" $scriptPath
 
@@ -576,6 +574,8 @@ Connect-AzAccount -Credential $cred | Out-Null
          
 #install sql server cmdlets
 powershell.exe -c "`$user='$username'; `$pass='$password'; try { Invoke-Command -ScriptBlock { Install-Module -Name SqlServer -force } -ComputerName localhost -Credential (New-Object System.Management.Automation.PSCredential `$user,(ConvertTo-SecureString `$pass -AsPlainText -Force)) } catch { echo `$_.Exception.Message }" 
+
+cd "c:\labfiles";
 
 git clone https://github.com/solliancenet/advanced-dotnet-workshop
 
