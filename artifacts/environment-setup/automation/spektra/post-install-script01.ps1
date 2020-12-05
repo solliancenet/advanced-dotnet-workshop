@@ -223,7 +223,11 @@ switch ($BuildEdition) {
   if (!(Test-Path $codeCmdPath)) 
   {
     Remove-Item -Force "$env:TEMP\vscode-$($BuildEdition).exe" -ErrorAction SilentlyContinue
-    Invoke-WebRequest -Uri "https://vscode-update.azurewebsites.net/latest/$($bitVersion)/$($BuildEdition)" -OutFile "C:\temp\vscode-$($BuildEdition).exe"
+
+    #latest release
+    $url = "https://vscode-update.azurewebsites.net/latest/$($bitVersion)/$($BuildEdition)";
+
+    Invoke-WebRequest -Uri $url -OutFile "C:\temp\vscode-$($BuildEdition).exe"
 
     Start-Process -Wait "C:\temp\vscode-$($BuildEdition).exe" -ArgumentList /silent, /mergetasks=!runcode
   }
@@ -375,6 +379,21 @@ function InstallVisualStudio()
         choco install visualstudio2019enterprise -y --ignoredetectedreboot
 }
 
+function InstallVisualStudioPreview()
+{
+    write-host "Installing Visual Studio";
+
+    # Install Chocolatey
+    if (!(Get-Command choco.exe -ErrorAction SilentlyContinue)) {
+        Set-ExecutionPolicy Bypass -Scope Process -Force; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))}
+        
+        # Install Visual Studio 2019 Community version
+        #choco install visualstudio2019community -y
+
+        # Install Visual Studio 2019 Enterprise version
+        choco install visualstudio2019enterprise-preview -pre -y --ignoredetectedreboot
+}
+
 function InstallWSL()
 {
   write-host "Installing WSL";
@@ -430,6 +449,26 @@ function UpdateVisualStudio($edition)
     #& $bootstrapper update  --quiet --norestart --installPath 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise'
 
     Start-Process $bootstrapper -Wait -ArgumentList "update --quiet --norestart --installPath 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise'"
+}
+
+function AddVisualStudioWorkload($edition, $workloadName)
+{
+    mkdir c:\temp -ea silentlycontinue
+    cd c:\temp
+    
+    Write-Host "Adding Visual Studio workload [$workloadName]."
+
+    $Edition = 'Enterprise';
+    $Channel = 'Release';
+    $channelUri = "https://aka.ms/vs/16/release";
+    $responseFileName = "vs";
+ 
+    $intermedateDir = "c:\temp";
+    $bootstrapper = "$intermedateDir\vs_$edition.exe"
+    
+    $bootstrapperUri = "$channelUri/vs_$($Edition.ToLowerInvariant()).exe"
+
+    Start-Process $bootstrapper -Wait -ArgumentList "--add $workloadName --passive --quiet --norestart"
 }
 
 #Disable-InternetExplorerESC
@@ -551,12 +590,18 @@ InstallUbuntu
 
 InstallVisualStudioCode
 
+$vsVersion = "enterprise";
+
 $ext = @("ms-vscode.azurecli")
 InstallVisualStudioCode $ext
 
-InstallVisualStudio "enterprise"
+InstallVisualStudioPreview $vsVersion
 
-UpdateVisualStudio "enterprise"
+UpdateVisualStudio $vsVersion
+
+AddVisualStudioWorkload $vsVersion "Microsoft.VisualStudio.Workload.Azure";
+AddVisualStudioWorkload $vsVersion "Microsoft.VisualStudio.Workload.NetCoreTools";
+AddVisualStudioWorkload $vsVersion "Microsoft.VisualStudio.Workload.NetWeb";
 
 reg add HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced /v HideFileExt /t REG_DWORD /d 0 /f
 
