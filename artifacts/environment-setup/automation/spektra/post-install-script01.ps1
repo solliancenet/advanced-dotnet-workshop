@@ -364,7 +364,7 @@ function InstallWSL2
     #>
 }
 
-function InstallVisualStudio()
+function InstallVisualStudio($edition)
 {
     write-host "Installing Visual Studio";
 
@@ -381,17 +381,17 @@ function InstallVisualStudio()
 
 function InstallVisualStudioPreview()
 {
-    write-host "Installing Visual Studio";
+    write-host "Installing Visual Studio Preview";
 
     # Install Chocolatey
     if (!(Get-Command choco.exe -ErrorAction SilentlyContinue)) {
         Set-ExecutionPolicy Bypass -Scope Process -Force; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))}
         
-        # Install Visual Studio 2019 Community version
-        #choco install visualstudio2019community -y
+    # Install Visual Studio 2019 Community version
+    #choco install visualstudio2019community -y
 
-        # Install Visual Studio 2019 Enterprise version
-        choco install visualstudio2019enterprise-preview -pre -y --ignoredetectedreboot
+    # Install Visual Studio 2019 Enterprise version
+    choco install visualstudio2019enterprise-preview -pre -y --ignoredetectedreboot
 }
 
 function InstallWSL()
@@ -451,24 +451,25 @@ function UpdateVisualStudio($edition)
     Start-Process $bootstrapper -Wait -ArgumentList "update --quiet --norestart --installPath 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise'"
 }
 
-function AddVisualStudioWorkload($edition, $workloadName)
+function AddVisualStudioWorkload($edition, $workloadName, $isPreview)
 {
     mkdir c:\temp -ea silentlycontinue
     cd c:\temp
     
     Write-Host "Adding Visual Studio workload [$workloadName]."
 
-    $Edition = 'Enterprise';
-    $Channel = 'Release';
-    $channelUri = "https://aka.ms/vs/16/release";
-    $responseFileName = "vs";
- 
-    $intermedateDir = "c:\temp";
-    $bootstrapper = "$intermedateDir\vs_$edition.exe"
-    
-    $bootstrapperUri = "$channelUri/vs_$($Edition.ToLowerInvariant()).exe"
-
-    Start-Process $bootstrapper -Wait -ArgumentList "--add $workloadName --passive --quiet --norestart"
+    if ($isPreview)
+    {
+        $bootstrapper = "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vs_installer";
+        $installPath = "C:\Program Files (x86)\Microsoft Visual Studio\2019\Preview"
+        Start-Process $bootstrapper -Wait -ArgumentList "modify --add $workloadName --passive --quiet --norestart --installPath `"$installPath`""   
+    }
+    else
+    {
+      $intermedateDir = "c:\temp";
+      $bootstrapper = "$intermedateDir\vs_$edition.exe"
+      Start-Process $bootstrapper -Wait -ArgumentList "--add $workloadName --passive --quiet --norestart"
+    }
 }
 
 #Disable-InternetExplorerESC
@@ -588,20 +589,21 @@ InstallDockerDesktop
 
 InstallUbuntu
 
-InstallVisualStudioCode
-
-$vsVersion = "enterprise";
-
 $ext = @("ms-vscode.azurecli")
 InstallVisualStudioCode $ext
 
+$vsVersion = "enterprise";
+
+#InstallVisualStudio $vsVersion
 InstallVisualStudioPreview $vsVersion
 
-UpdateVisualStudio $vsVersion
+#UpdateVisualStudio $vsVersion
 
-AddVisualStudioWorkload $vsVersion "Microsoft.VisualStudio.Workload.Azure";
-AddVisualStudioWorkload $vsVersion "Microsoft.VisualStudio.Workload.NetCoreTools";
-AddVisualStudioWorkload $vsVersion "Microsoft.VisualStudio.Workload.NetWeb";
+AddVisualStudioWorkload $vsVersion "Microsoft.VisualStudio.Workload.Azure" $true;
+AddVisualStudioWorkload $vsVersion "Microsoft.VisualStudio.Workload.NetCoreTools" $true;
+AddVisualStudioWorkload $vsVersion "Microsoft.VisualStudio.Workload.NetWeb" $true;
+AddVisualStudioWorkload $vsVersion "Component.GitHub.VisualStudio" $true;
+AddVisualStudioWorkload $vsVersion "Microsoft.VisualStudio.Component.Git" $true;
 
 reg add HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced /v HideFileExt /t REG_DWORD /d 0 /f
 

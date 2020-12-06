@@ -1,3 +1,24 @@
+function AddVisualStudioWorkload($edition, $workloadName, $isPreview)
+{
+    mkdir c:\temp -ea silentlycontinue
+    cd c:\temp
+    
+    Write-Host "Adding Visual Studio workload [$workloadName]."
+
+    if ($isPreview)
+    {
+        $bootstrapper = "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vs_installer";
+        $installPath = "C:\Program Files (x86)\Microsoft Visual Studio\2019\Preview"
+        Start-Process $bootstrapper -Wait -ArgumentList "modify --add $workloadName --passive --quiet --norestart --installPath `"$installPath`""   
+    }
+    else
+    {
+      $intermedateDir = "c:\temp";
+      $bootstrapper = "$intermedateDir\vs_$edition.exe"
+      Start-Process $bootstrapper -Wait -ArgumentList "--add $workloadName --passive --quiet --norestart"
+    }
+}
+
 function SetupWSL()
 {
     wsl --set-default-version 2
@@ -55,8 +76,17 @@ function InstallUbuntu()
     start-sleep 30
 }
 
+AddVisualStudioWorkload $vsVersion "Microsoft.VisualStudio.Workload.Azure" $true;
+AddVisualStudioWorkload $vsVersion "Microsoft.VisualStudio.Workload.NetCoreTools" $true;
+AddVisualStudioWorkload $vsVersion "Microsoft.VisualStudio.Workload.NetWeb" $true;
+AddVisualStudioWorkload $vsVersion "Component.GitHub.VisualStudio" $true;
+AddVisualStudioWorkload $vsVersion "Microsoft.VisualStudio.Component.Git" $true;
+
 InstallWSL2
 
 InstallUbuntu
 
 SetupWSL
+
+#diable the task
+Disable-ScheduledTask -TaskName "Setup WSL"
