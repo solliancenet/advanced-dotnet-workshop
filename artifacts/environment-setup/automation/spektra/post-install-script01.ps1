@@ -84,7 +84,7 @@ InstallWSL2
 
 InstallDockerDesktop
 
-InstallUbuntu
+DownloadUbuntu
 
 $ext = @("ms-vscode.azurecli")
 InstallVisualStudioCode $ext
