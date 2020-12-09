@@ -116,13 +116,6 @@ AddShortcut $global:localusername "C:\ProgramData\Microsoft\Windows\Start Menu\P
 AddShortcut $global:localusername "C:\Users\$localusername\Desktop" "WSL Setup" "C:\LabFiles\advanced-dotnet-workshop\artifacts\environment-setup\automation\WSLSetup.bat" $null;
 AddShortcut $global:localusername "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp" "Docker Desktop" "C:\LabFiles\advanced-dotnet-workshop\artifacts\environment-setup\automation\WSLSetup.bat" $null;
 
-$vsVersion = "enterprise";
-AddVisualStudioWorkload $vsVersion "Microsoft.VisualStudio.Workload.Azure" ;
-AddVisualStudioWorkload $vsVersion "Microsoft.VisualStudio.Workload.NetCoreTools" ;
-AddVisualStudioWorkload $vsVersion "Microsoft.VisualStudio.Workload.NetWeb" ;
-AddVisualStudioWorkload $vsVersion "Component.GitHub.VisualStudio" ;
-AddVisualStudioWorkload $vsVersion "Microsoft.VisualStudio.Component.Git" ;
-
 Uninstall-AzureRm
 
 $securePassword = $password | ConvertTo-SecureString -AsPlainText -Force
@@ -147,6 +140,13 @@ InstallUbuntu
 SetupWSL
 
 UpdateDockerSettings $global:localusername;
+
+$vsVersion = "enterprise";
+AddVisualStudioWorkload $vsVersion "Microsoft.VisualStudio.Workload.NetCoreTools" ;
+AddVisualStudioWorkload $vsVersion "Microsoft.VisualStudio.Workload.NetWeb" ;
+AddVisualStudioWorkload $vsVersion "Component.GitHub.VisualStudio" ;
+AddVisualStudioWorkload $vsVersion "Microsoft.VisualStudio.Component.Git" ;
+AddVisualStudioWorkload $vsVersion "Microsoft.VisualStudio.Workload.Azure" ;
 
 Stop-Transcript
 
