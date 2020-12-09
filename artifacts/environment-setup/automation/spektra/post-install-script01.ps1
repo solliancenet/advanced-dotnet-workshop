@@ -48,9 +48,13 @@ $global:password = $AzurePassword                # READ FROM FILE
 $clientId = $TokenGeneratorClientId       # READ FROM FILE
 $global:localusername = "wsuser"
 
+InitSetup
+
 DisableInternetExplorerESC
 
 EnableIEFileDownload
+
+InstallChocolaty;
 
 InstallNotepadPP;
 
@@ -59,8 +63,6 @@ InstallDotNetCore "3.1"
 InstallDotNet5;
 
 InstallGit;
-
-InstallChocolaty;
 
 InstallFiddler;
 
@@ -99,10 +101,6 @@ AddVisualStudioWorkload $vsVersion "Microsoft.VisualStudio.Workload.NetWeb" ;
 AddVisualStudioWorkload $vsVersion "Component.GitHub.VisualStudio" ;
 AddVisualStudioWorkload $vsVersion "Microsoft.VisualStudio.Component.Git" ;
 
-reg add HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced /v HideFileExt /t REG_DWORD /d 0 /f
-
-wevtutil set-log Microsoft-Windows-TaskScheduler/Operational /enabled:true
-
 $scriptPath = "C:\LabFiles\advanced-dotnet-workshop\artifacts\environment-setup\automation\WSLSetup.ps1"
 CreateRebootTask "Setup WSL" $scriptPath "" "SYSTEM" $null;
 
@@ -123,6 +121,8 @@ git clone https://github.com/solliancenet/advanced-dotnet-workshop
 sleep 20
 
 Stop-Transcript
+
+Finalize;
 
 Restart-Computer -Force
 
