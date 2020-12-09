@@ -1,3 +1,4 @@
+<#
 function AddVisualStudioWorkload($edition, $workloadName, $isPreview)
 {
     mkdir c:\temp -ea silentlycontinue
@@ -18,6 +19,7 @@ function AddVisualStudioWorkload($edition, $workloadName, $isPreview)
       Start-Process $bootstrapper -Wait -ArgumentList "--add $workloadName --passive --quiet --norestart"
     }
 }
+#>
 
 function SetupWSL()
 {
@@ -76,11 +78,21 @@ function InstallUbuntu()
     start-sleep 30
 }
 
+#run the solliance package
+. C:\LabFiles\Common.ps1
+
 InstallWSL2
 
 InstallUbuntu
 
 SetupWSL
+
+$vsVersion = "enterprise";
+AddVisualStudioWorkload $vsVersion "Microsoft.VisualStudio.Workload.Azure" ;
+AddVisualStudioWorkload $vsVersion "Microsoft.VisualStudio.Workload.NetCoreTools" ;
+AddVisualStudioWorkload $vsVersion "Microsoft.VisualStudio.Workload.NetWeb" ;
+AddVisualStudioWorkload $vsVersion "Component.GitHub.VisualStudio" ;
+AddVisualStudioWorkload $vsVersion "Microsoft.VisualStudio.Component.Git" ;
 
 #diable the task
 Disable-ScheduledTask -TaskName "Setup WSL"
