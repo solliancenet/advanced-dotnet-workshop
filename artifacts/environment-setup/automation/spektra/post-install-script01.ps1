@@ -93,12 +93,6 @@ $vsVersion = "enterprise";
 
 InstallVisualStudio $vsVersion;
 
-AddVisualStudioWorkload $vsVersion "Microsoft.VisualStudio.Workload.Azure" ;
-AddVisualStudioWorkload $vsVersion "Microsoft.VisualStudio.Workload.NetCoreTools" ;
-AddVisualStudioWorkload $vsVersion "Microsoft.VisualStudio.Workload.NetWeb" ;
-AddVisualStudioWorkload $vsVersion "Component.GitHub.VisualStudio" ;
-AddVisualStudioWorkload $vsVersion "Microsoft.VisualStudio.Component.Git" ;
-
 $vsVersion = "preview";
 InstallVisualStudio $vsVersion;
 
