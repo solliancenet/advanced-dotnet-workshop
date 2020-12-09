@@ -90,7 +90,6 @@ $ext = @("ms-vscode.azurecli")
 InstallVisualStudioCode $ext
 
 $vsVersion = "enterprise";
-
 InstallVisualStudio $vsVersion;
 
 $vsVersion = "preview";
@@ -124,8 +123,6 @@ git clone https://github.com/solliancenet/advanced-dotnet-workshop
 sleep 20
 
 Stop-Transcript
-
-Finalize;
 
 Restart-Computer -Force
 
