@@ -76,12 +76,6 @@ function InstallUbuntu()
     start-sleep 30
 }
 
-AddVisualStudioWorkload $vsVersion "Microsoft.VisualStudio.Workload.Azure" $true;
-AddVisualStudioWorkload $vsVersion "Microsoft.VisualStudio.Workload.NetCoreTools" $true;
-AddVisualStudioWorkload $vsVersion "Microsoft.VisualStudio.Workload.NetWeb" $true;
-AddVisualStudioWorkload $vsVersion "Component.GitHub.VisualStudio" $true;
-AddVisualStudioWorkload $vsVersion "Microsoft.VisualStudio.Component.Git" $true;
-
 InstallWSL2
 
 InstallUbuntu

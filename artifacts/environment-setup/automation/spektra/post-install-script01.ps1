@@ -89,11 +89,9 @@ InstallUbuntu
 $ext = @("ms-vscode.azurecli")
 InstallVisualStudioCode $ext
 
-$vsVersion = "preview";
+$vsVersion = "enterprise";
 
 InstallVisualStudio $vsVersion;
-
-UpdateVisualStudio $vsVersion;
 
 AddVisualStudioWorkload $vsVersion "Microsoft.VisualStudio.Workload.Azure" ;
 AddVisualStudioWorkload $vsVersion "Microsoft.VisualStudio.Workload.NetCoreTools" ;
@@ -101,8 +99,21 @@ AddVisualStudioWorkload $vsVersion "Microsoft.VisualStudio.Workload.NetWeb" ;
 AddVisualStudioWorkload $vsVersion "Component.GitHub.VisualStudio" ;
 AddVisualStudioWorkload $vsVersion "Microsoft.VisualStudio.Component.Git" ;
 
-$scriptPath = "C:\LabFiles\advanced-dotnet-workshop\artifacts\environment-setup\automation\WSLSetup.ps1"
-CreateRebootTask "Setup WSL" $scriptPath "" "SYSTEM" $null;
+$vsVersion = "preview";
+InstallVisualStudio $vsVersion;
+
+#UpdateVisualStudio $vsVersion;
+
+#AddVisualStudioWorkload $vsVersion "Microsoft.VisualStudio.Workload.Azure" ;
+#AddVisualStudioWorkload $vsVersion "Microsoft.VisualStudio.Workload.NetCoreTools" ;
+#AddVisualStudioWorkload $vsVersion "Microsoft.VisualStudio.Workload.NetWeb" ;
+#AddVisualStudioWorkload $vsVersion "Component.GitHub.VisualStudio" ;
+#AddVisualStudioWorkload $vsVersion "Microsoft.VisualStudio.Component.Git" ;
+
+$scriptPath = "C:\LabFiles\advanced-dotnet-workshop\artifacts\environment-setup\automation\spektra\post-install-script02.ps1"
+CreateRebootTask "Setup WSL" $scriptPath $null "SYSTEM" $null;
+CreateRebootTask "Setup WSL" $scriptPath $null "labvm-$deploymentid\$localusername" $password;
+
 
 Uninstall-AzureRm
 
