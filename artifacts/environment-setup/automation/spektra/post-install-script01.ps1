@@ -89,7 +89,6 @@ InstallVisualStudioCode $ext
 
 $vsVersion = "preview";
 
-#InstallVisualStudio $vsVersion
 InstallVisualStudio $vsVersion;
 
 UpdateVisualStudio $vsVersion;
