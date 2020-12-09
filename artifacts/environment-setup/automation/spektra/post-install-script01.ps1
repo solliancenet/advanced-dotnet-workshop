@@ -112,8 +112,6 @@ InstallVisualStudio $vsVersion;
 
 $scriptPath = "C:\LabFiles\advanced-dotnet-workshop\artifacts\environment-setup\automation\spektra\post-install-script02.ps1"
 CreateRebootTask "Setup WSL" $scriptPath $null "SYSTEM" $null;
-CreateRebootTask "Setup WSL" $scriptPath $null "labvm-$deploymentid\$localusername" $password;
-
 
 Uninstall-AzureRm
 
